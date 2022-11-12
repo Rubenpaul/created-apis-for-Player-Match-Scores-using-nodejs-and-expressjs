@@ -145,3 +145,23 @@ app.get("/matches/:matchId/players", async (request, response) => {
   const playersArrayObj = await db.all(getPlayersForAMatchQuery);
   response.send(playersArrayObj);
 });
+//GET player stats API
+app.get("/players/:playerId/playerScores", async (request, response) => {
+  const { playerId } = request.params;
+  const getPlayerStats = `
+        SELECT 
+            player_id AS playerId,
+            player_name AS playerName,
+            SUM(score) AS totalScore,
+            SUM(fours) AS totalFours,
+            SUM(sixes) AS totalSixes
+        FROM 
+            player_details NATURAL JOIN player_match_score
+        WHERE 
+            player_id = ${playerId}
+
+    `;
+  const result = await db.get(getPlayerStats);
+  response.send(result);
+});
+module.exports = app;
